@@ -25,8 +25,16 @@ export const handler: Handlers<Tweet[]> = {
   },
   async POST(req, ctx) {
     const formData = await req.formData();
-    const name = formData.get("name")?.toString() ?? "";
-    const tweet = formData.get("tweet")?.toString() ?? "";
+
+    if (!(formData.get("name") && formData.get("tweet"))) {
+      return new Response("", {
+        status: 303,
+        headers: { Location: "/" },
+      });
+    }
+
+    const name = formData.get("name")?.toString();
+    const tweet = formData.get("tweet")?.toString();
     // 登録処理
     const kv = await Deno.openKv();
     await kv.set(["tweets", Date.now()], {
